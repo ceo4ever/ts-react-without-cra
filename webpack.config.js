@@ -18,7 +18,23 @@ module.exports = (webpackEnv) => {
         {
           test: /\.(ts|tsx)$/,
           exclude: /node_modules/,
-          use: "ts-loader",
+          use: [
+            {
+              loader: "ts-loader",
+              options: {
+                transpileOnly: isEnvDevelopment ? true : false,
+              },
+            },
+          ],
+        },
+        {
+          loader: "file-loader",
+          exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+          options: {
+            outputPath: "static/media",
+            name: "[name].[hash:8].[ext]",
+            esModule: false,
+          },
         },
       ],
     },
@@ -31,7 +47,7 @@ module.exports = (webpackEnv) => {
       contentBase: path.join(__dirname, "public"),
       open: true,
       historyApiFallback: true,
-      overlay: false,
+      overlay: true,
     },
     devtool: isEnvProduction
       ? shouldUseSourceMap
