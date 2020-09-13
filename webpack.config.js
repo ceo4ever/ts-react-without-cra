@@ -11,7 +11,9 @@ module.exports = (webpackEnv) => {
     entry: path.resolve(__dirname, "src", "index.tsx"),
     output: {
       path: path.resolve(__dirname, "build"),
-      filename: "static/js/[name].bundle.js",
+      filename: isEnvProduction
+        ? "static/js/[name].[contenthash:8].js"
+        : isEnvDevelopment && "static/js/bundle.js",
     },
     module: {
       rules: [
@@ -28,12 +30,12 @@ module.exports = (webpackEnv) => {
           ],
         },
         {
-          loader: "file-loader",
-          exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+          loader: "url-loader",
           options: {
+            limit: 10000,
             outputPath: "static/media",
             name: "[name].[hash:8].[ext]",
-            esModule: false,
           },
         },
       ],
