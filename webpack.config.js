@@ -1,5 +1,7 @@
+const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const dotenv = require("dotenv");
 
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 
@@ -43,7 +45,14 @@ module.exports = (webpackEnv) => {
     resolve: {
       extensions: [".tsx", ".ts", ".js"],
     },
-    plugins: [new HtmlWebpackPlugin({ template: "./public/index.html" })],
+    plugins: [
+      new HtmlWebpackPlugin({ template: "./public/index.html" }),
+      new webpack.DefinePlugin({
+        "process.env": JSON.stringify(
+          Object.assign(process.env, dotenv.config().parsed)
+        ),
+      }),
+    ],
     devServer: {
       port: 3000,
       contentBase: path.join(__dirname, "public"),

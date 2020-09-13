@@ -5,6 +5,7 @@ import WebpackIcon from "./assets/webpack.jpg";
 import tenKB from "./assets/tenKB.png";
 
 function Home() {
+  console.log(process.env.NODE_ENV);
   const { pathname } = useLocation();
   console.log(ReactIcon);
   console.log(tenKB);
