@@ -3,6 +3,11 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const dotenv = require("dotenv");
 
+const appIndex = path.resolve(__dirname, "src", "index.tsx");
+const appHtml = path.resolve(__dirname, "public", "index.html");
+const appBuild = path.resolve(__dirname, "build");
+const appPublic = path.resolve(__dirname, "public");
+
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 
 module.exports = (webpackEnv) => {
@@ -10,9 +15,9 @@ module.exports = (webpackEnv) => {
   const isEnvProduction = webpackEnv === "production";
   return {
     mode: webpackEnv,
-    entry: path.resolve(__dirname, "src", "index.tsx"),
+    entry: appIndex,
     output: {
-      path: path.resolve(__dirname, "build"),
+      path: appBuild,
       filename: isEnvProduction
         ? "static/js/[name].[contenthash:8].js"
         : isEnvDevelopment && "static/js/bundle.js",
@@ -46,7 +51,7 @@ module.exports = (webpackEnv) => {
       extensions: [".tsx", ".ts", ".js"],
     },
     plugins: [
-      new HtmlWebpackPlugin({ template: "./public/index.html" }),
+      new HtmlWebpackPlugin({ template: appHtml }),
       new webpack.DefinePlugin({
         "process.env": JSON.stringify(
           Object.assign(process.env, dotenv.config().parsed)
@@ -55,7 +60,7 @@ module.exports = (webpackEnv) => {
     ],
     devServer: {
       port: 3000,
-      contentBase: path.join(__dirname, "public"),
+      contentBase: appPublic,
       open: true,
       historyApiFallback: true,
       overlay: true,
