@@ -1,7 +1,7 @@
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 
 const appIndex = path.resolve(__dirname, "src", "index.tsx");
 const appHtml = path.resolve(__dirname, "public", "index.html");
@@ -9,6 +9,14 @@ const appBuild = path.resolve(__dirname, "build");
 const appPublic = path.resolve(__dirname, "public");
 
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
+
+function extractFromDotenv(str) {
+  const result = str
+    .match(/"REACT_APP[\w]{1,}":"[\w|\d|\s]{1,}",?/g)
+    .join("")
+    .split(/,$/)[0];
+  return JSON.parse(`{${result}}`);
+}
 
 module.exports = (webpackEnv) => {
   const isEnvDevelopment = webpackEnv === "development";
@@ -54,7 +62,9 @@ module.exports = (webpackEnv) => {
       new HtmlWebpackPlugin({ template: appHtml }),
       new webpack.DefinePlugin({
         "process.env": JSON.stringify(
-          Object.assign(process.env, dotenv.config().parsed)
+          Object.assign(extractFromDotenv(JSON.stringify(dotenv.parsed)), {
+            NODE_ENV: webpackEnv,
+          })
         ),
       }),
     ],
