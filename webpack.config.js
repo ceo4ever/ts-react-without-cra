@@ -1,7 +1,7 @@
+require("dotenv").config();
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const dotenv = require("dotenv").config();
 
 const appIndex = path.resolve(__dirname, "src", "index.tsx");
 const appHtml = path.resolve(__dirname, "public", "index.html");
@@ -10,17 +10,42 @@ const appPublic = path.resolve(__dirname, "public");
 
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 
-function extractFromDotenv(str) {
-  const result = str
-    .match(/"REACT_APP[\w]{1,}":"[\w|\d|\s]{1,}",?/g)
-    .join("")
-    .split(/,$/)[0];
-  return JSON.parse(`{${result}}`);
+// function extractFromDotenv(str) {
+//   const result = str
+//     .match(/"REACT_APP[\w]{1,}":"[\w|\d|\s]{1,}",?/g)
+//     .join("")
+//     .split(/,$/)[0];
+//   return JSON.parse(`{${result}}`);
+// }
+// new webpack.DefinePlugin({
+//   "process.env": JSON.stringify(
+//     Object.assign(extractFromDotenv(JSON.stringify(dotenv.parsed)), {
+//       NODE_ENV: webpackEnv,
+//     })
+//   ),
+// }),
+
+function getClientEnv(nodeEnv) {
+  return {
+    "process.env": JSON.stringify(
+      Object.keys(process.env)
+        .filter((key) => /^REACT_APP/i.test(key))
+        .reduce(
+          (env, key) => {
+            env[key] = process.env[key];
+            return env;
+          },
+          { NODE_ENV: nodeEnv }
+        )
+    ),
+  };
 }
 
 module.exports = (webpackEnv) => {
   const isEnvDevelopment = webpackEnv === "development";
   const isEnvProduction = webpackEnv === "production";
+  const clientEnv = getClientEnv(webpackEnv);
+
   return {
     mode: webpackEnv,
     entry: appIndex,
@@ -60,13 +85,7 @@ module.exports = (webpackEnv) => {
     },
     plugins: [
       new HtmlWebpackPlugin({ template: appHtml }),
-      new webpack.DefinePlugin({
-        "process.env": JSON.stringify(
-          Object.assign(extractFromDotenv(JSON.stringify(dotenv.parsed)), {
-            NODE_ENV: webpackEnv,
-          })
-        ),
-      }),
+      new webpack.DefinePlugin(clientEnv),
     ],
     devServer: {
       port: 3000,

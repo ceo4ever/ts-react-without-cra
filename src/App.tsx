@@ -5,6 +5,7 @@ import Home from "./Home";
 import GlobalStyle from "./GlobalStyles";
 
 function App() {
+  console.log(process.env);
   return (
     <>
       <GlobalStyle />
