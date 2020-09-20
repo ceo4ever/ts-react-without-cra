@@ -2,6 +2,9 @@ require("dotenv").config();
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+  .BundleAnalyzerPlugin;
 
 const appIndex = path.resolve(__dirname, "src", "index.tsx");
 const appHtml = path.resolve(__dirname, "public", "index.html");
@@ -10,33 +13,15 @@ const appPublic = path.resolve(__dirname, "public");
 
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 
-// function extractFromDotenv(str) {
-//   const result = str
-//     .match(/"REACT_APP[\w]{1,}":"[\w|\d|\s]{1,}",?/g)
-//     .join("")
-//     .split(/,$/)[0];
-//   return JSON.parse(`{${result}}`);
-// }
-// new webpack.DefinePlugin({
-//   "process.env": JSON.stringify(
-//     Object.assign(extractFromDotenv(JSON.stringify(dotenv.parsed)), {
-//       NODE_ENV: webpackEnv,
-//     })
-//   ),
-// }),
-
 function getClientEnv(nodeEnv) {
   return {
     "process.env": JSON.stringify(
       Object.keys(process.env)
         .filter((key) => /^REACT_APP/i.test(key))
-        .reduce(
-          (env, key) => {
-            env[key] = process.env[key];
-            return env;
-          },
-          { NODE_ENV: nodeEnv }
-        )
+        .reduce((env, key) => {
+          env[key] = process.env[key];
+          return env;
+        }, {})
     ),
   };
 }
@@ -54,6 +39,9 @@ module.exports = (webpackEnv) => {
       filename: isEnvProduction
         ? "static/js/[name].[contenthash:8].js"
         : isEnvDevelopment && "static/js/bundle.js",
+      chunkFilename: isEnvProduction
+        ? "static/js/[name].[contenthash:8].chunk.js"
+        : isEnvDevelopment && "static/js/[name].chunk.js",
     },
     module: {
       rules: [
@@ -80,12 +68,24 @@ module.exports = (webpackEnv) => {
         },
       ],
     },
+    optimization: {
+      minimize: isEnvProduction,
+      minimizer: [new TerserPlugin()],
+      splitChunks: {
+        chunks: "all",
+        name: false,
+      },
+      runtimeChunk: {
+        name: (entrypoint) => `runtime-${entrypoint.name}`,
+      },
+    },
     resolve: {
       extensions: [".tsx", ".ts", ".js"],
     },
     plugins: [
       new HtmlWebpackPlugin({ template: appHtml }),
       new webpack.DefinePlugin(clientEnv),
+      new BundleAnalyzerPlugin(),
     ],
     devServer: {
       port: 3000,
