@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prebuild": "node scripts/prebuild",
     "build": "webpack -p --progress --env production",
     "start": "webpack-dev-server -d --env development"
   },
