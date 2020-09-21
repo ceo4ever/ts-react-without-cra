@@ -12,26 +12,32 @@ function getPublicPath(name) {
   return path.resolve(PUBLIC_DIR, name);
 }
 
-// * build 내 파일이 존재하면 비우고 build directory가 없으면 만듬
-if (fs.existsSync(BUILD_DIR)) {
-  fs.readdir(BUILD_DIR, (_, files) => {
+// 인자 dir 내 파일이 존재하면 비우고 폴더가 존재하지 않으면 만듬
+function emptyDir(dir) {
+  if (fs.existsSync(dir)) {
+    fs.readdir(dir, (_, files) => {
+      files.forEach((item) => {
+        if (/_|\.[\w]{1,}/.test(item)) {
+          fs.unlinkSync(getBuildPath(item));
+        } else {
+          fs.rmdirSync(getBuildPath(item), { recursive: true });
+        }
+      });
+    });
+  } else {
+    fs.mkdirSync(dir);
+  }
+}
+// `passList: Array<string>`를 제외한 모든 public 파일을 buidl/로 복사
+function copyPublic(passList) {
+  fs.readdir(PUBLIC_DIR, (_, files) => {
     files.forEach((item) => {
-      if (/_|\.[\w]{1,}/.test(item)) {
-        fs.unlinkSync(getBuildPath(item));
-      } else {
-        fs.rmdirSync(getBuildPath(item), { recursive: true });
+      if (!passList.includes(item)) {
+        fs.copyFileSync(getPublicPath(item), getBuildPath(item));
       }
     });
   });
-} else {
-  fs.mkdirSync(BUILD_DIR);
 }
 
-// * index.html을 제외한 모든 public 파일을 build/로 복사
-fs.readdir(PUBLIC_DIR, (_, files) => {
-  files.forEach((item) => {
-    if (item !== "index.html") {
-      fs.copyFileSync(getPublicPath(item), getBuildPath(item));
-    }
-  });
-});
+emptyDir(BUILD_DIR);
+copyPublic(["index.html"]);
