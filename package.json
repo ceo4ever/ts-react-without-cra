@@ -6,6 +6,7 @@
   "scripts": {
     "prebuild": "node scripts/prebuild",
     "build": "webpack -p --progress --env production",
+    "build:analyze": "webpack -p --progress --env production",
     "start": "webpack-dev-server -d --env development"
   },
   "author": "",

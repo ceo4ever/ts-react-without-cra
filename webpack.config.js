@@ -29,6 +29,7 @@ function getClientEnv(nodeEnv) {
 module.exports = (webpackEnv) => {
   const isEnvDevelopment = webpackEnv === "development";
   const isEnvProduction = webpackEnv === "production";
+  const isBundleAnalyze = process.env.npm_lifecycle_event === "build:analyze";
   const clientEnv = getClientEnv(webpackEnv);
 
   return {
@@ -85,8 +86,8 @@ module.exports = (webpackEnv) => {
     plugins: [
       new HtmlWebpackPlugin({ template: appHtml }),
       new webpack.DefinePlugin(clientEnv),
-      new BundleAnalyzerPlugin(),
-    ],
+      isBundleAnalyze && new BundleAnalyzerPlugin(),
+    ].filter(Boolean),
     devServer: {
       port: 3000,
       contentBase: appPublic,
