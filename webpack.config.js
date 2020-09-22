@@ -18,10 +18,15 @@ function getClientEnv(nodeEnv) {
     "process.env": JSON.stringify(
       Object.keys(process.env)
         .filter((key) => /^REACT_APP/i.test(key))
-        .reduce((env, key) => {
-          env[key] = process.env[key];
-          return env;
-        }, {})
+        .reduce(
+          (env, key) => {
+            env[key] = process.env[key];
+            return env;
+          },
+          {
+            NODE_ENV: nodeEnv,
+          }
+        )
     ),
   };
 }
