@@ -55,6 +55,7 @@ module.exports = (webpackEnv) => {
           test: /\.(ts|tsx)$/,
           exclude: /node_modules/,
           use: [
+            "cache-loader",
             {
               loader: "ts-loader",
               options: {
@@ -105,5 +106,8 @@ module.exports = (webpackEnv) => {
         ? "source-map"
         : false
       : isEnvDevelopment && "cheap-module-source-map",
+    cache: {
+      type: isEnvDevelopment ? "memory" : isEnvProduction && "filesystem",
+    },
   };
 };
