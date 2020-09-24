@@ -6,13 +6,24 @@
   "scripts": {
     "prebuild": "node scripts/prebuild",
     "build": "webpack -p --env production",
-    "build:analyze": "webpack -p --progress --env production",
-    "start": "webpack-dev-server -d --env development"
+    "build:analyze": "webpack -p --env production",
+    "start": "webpack-dev-server --env development"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "2.x",
+    "@typescript-eslint/parser": "2.x",
+    "babel-eslint": "10.x",
     "cache-loader": "^4.1.0",
+    "eslint": "^7.9.0",
+    "eslint-config-react-app": "^5.2.1",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-flowtype": "4.x",
+    "eslint-plugin-import": "2.x",
+    "eslint-plugin-jsx-a11y": "6.x",
+    "eslint-plugin-react": "7.x",
+    "eslint-plugin-react-hooks": "2.x",
     "file-loader": "^6.1.0",
     "html-webpack-plugin": "^4.4.1",
     "terser-webpack-plugin": "^4.2.2",
@@ -25,6 +36,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@types/node": "^14.11.2",
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
@@ -35,5 +47,8 @@
     "react-router-dom": "^5.2.0",
     "styled-components": "^5.2.0",
     "styled-reset": "^4.2.3"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   }
 }

@@ -9,9 +9,9 @@ function Home() {
   return (
     <div>
       <p>{pathname}</p>
-      <img src={ReactIcon} />
-      <img src={WebpackIcon} />
-      <img src={tenKB} />
+      <img src={ReactIcon} alt="img" />
+      <img src={WebpackIcon} alt="img" />
+      <img src={tenKB} alt="img" />
     </div>
   );
 }

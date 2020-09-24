@@ -8,6 +8,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 
 const appIndex = path.resolve(__dirname, "src", "index.tsx");
 const appHtml = path.resolve(__dirname, "public", "index.html");
+const appSrc = path.resolve(__dirname, "src");
 const appBuild = path.resolve(__dirname, "build");
 const appPublic = path.resolve(__dirname, "public");
 
@@ -48,30 +49,55 @@ module.exports = (webpackEnv) => {
       chunkFilename: isEnvProduction
         ? "static/js/[name].[contenthash:8].chunk.js"
         : isEnvDevelopment && "static/js/[name].chunk.js",
+      publicPath: "/",
     },
     module: {
       rules: [
         {
           test: /\.(ts|tsx)$/,
+          enforce: "pre",
           exclude: /node_modules/,
-          use: [
-            "cache-loader",
+          loader: "eslint-loader",
+          options: {
+            cache: true,
+            formatter: isEnvDevelopment
+              ? "codeframe"
+              : isEnvProduction && "stylish",
+          },
+          include: appSrc,
+        },
+        {
+          oneOf: [
             {
-              loader: "ts-loader",
+              test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+              loader: "url-loader",
               options: {
-                transpileOnly: isEnvDevelopment ? true : false,
+                limit: 10000,
+                outputPath: "static/media",
+                name: "[name].[hash:8].[ext]",
+              },
+            },
+            {
+              test: /\.(ts|tsx)$/,
+              exclude: /node_modules/,
+              use: [
+                "cache-loader",
+                {
+                  loader: "ts-loader",
+                  options: {
+                    transpileOnly: isEnvDevelopment ? true : false,
+                  },
+                },
+              ],
+            },
+            {
+              loader: "file-loader",
+              exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+              options: {
+                name: "static/media/[name].[hash:8].[ext]",
               },
             },
           ],
-        },
-        {
-          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-          loader: "url-loader",
-          options: {
-            limit: 10000,
-            outputPath: "static/media",
-            name: "[name].[hash:8].[ext]",
-          },
         },
       ],
     },
@@ -100,6 +126,7 @@ module.exports = (webpackEnv) => {
       open: true,
       historyApiFallback: true,
       overlay: true,
+      stats: "errors-warnings",
     },
     devtool: isEnvProduction
       ? shouldUseSourceMap
@@ -108,6 +135,17 @@ module.exports = (webpackEnv) => {
       : isEnvDevelopment && "cheap-module-source-map",
     cache: {
       type: isEnvDevelopment ? "memory" : isEnvProduction && "filesystem",
+    },
+    stats: {
+      builtAt: false,
+      children: false,
+      entrypoints: false,
+      hash: false,
+      modules: false,
+      version: false,
+      publicPath: true,
+      excludeAssets: [/\.(map|txt|html|jpg|png)$/],
+      warningsFilter: [/exceed/, /performance/],
     },
   };
 };
