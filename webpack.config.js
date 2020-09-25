@@ -3,12 +3,12 @@ const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
 const appIndex = path.resolve(__dirname, "src", "index.tsx");
 const appHtml = path.resolve(__dirname, "public", "index.html");
-const appSrc = path.resolve(__dirname, "src");
 const appBuild = path.resolve(__dirname, "build");
 const appPublic = path.resolve(__dirname, "public");
 
@@ -53,19 +53,6 @@ module.exports = (webpackEnv) => {
     },
     module: {
       rules: [
-        {
-          test: /\.(ts|tsx)$/,
-          enforce: "pre",
-          exclude: /node_modules/,
-          loader: "eslint-loader",
-          options: {
-            cache: true,
-            formatter: isEnvDevelopment
-              ? "codeframe"
-              : isEnvProduction && "stylish",
-          },
-          include: appSrc,
-        },
         {
           oneOf: [
             {
@@ -118,6 +105,11 @@ module.exports = (webpackEnv) => {
     plugins: [
       new HtmlWebpackPlugin({ template: appHtml }),
       new webpack.DefinePlugin(clientEnv),
+      new ForkTsCheckerWebpackPlugin({
+        eslint: {
+          files: "./src/**/*.{ts,tsx,js,jsx}",
+        },
+      }),
       isBundleAnalyze && new BundleAnalyzerPlugin(),
     ].filter(Boolean),
     devServer: {
