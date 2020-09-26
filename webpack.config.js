@@ -4,6 +4,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
@@ -110,6 +111,7 @@ module.exports = (webpackEnv) => {
           files: "./src/**/*.{ts,tsx,js,jsx}",
         },
       }),
+      new ManifestPlugin(),
       isBundleAnalyze && new BundleAnalyzerPlugin(),
     ].filter(Boolean),
     devServer: {
