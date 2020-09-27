@@ -111,7 +111,18 @@ module.exports = (webpackEnv) => {
           files: "./src/**/*.{ts,tsx,js,jsx}",
         },
       }),
-      new ManifestPlugin(),
+      new ManifestPlugin({
+        generate: (seed, files, entrypoints) => {
+          const manifestFiles = files.reduce(
+            (manifest, { name, path }) => ({ ...manifest, [name]: path }),
+            seed
+          );
+          const entryFiles = entrypoints.main.filter(
+            (filename) => !/\.map/.test(filename)
+          );
+          return { files: manifestFiles, entrypoints: entryFiles };
+        },
+      }),
       isBundleAnalyze && new BundleAnalyzerPlugin(),
     ].filter(Boolean),
     devServer: {
